@@ -16,11 +16,27 @@ module.exports = appInfo => {
   config.keys = appInfo.name + '_1636162922921_7970';
 
   // add your middleware config here
-  config.middleware = [];
+  config.middleware = [ 'adminSidebar' ];
 
   // add your user config here
   const userConfig = {
     // myAppName: 'egg',
+  };
+  config.security = {
+    // csrf
+    csrf: {
+      headerName: 'x-csrf-token',
+      ignore: ctx => {
+        return ctx.request.url.startsWith('/api');
+      },
+    },
+    // 跨域白名单
+    // domainWhiteList: ['http://localhost:3000'],
+  };
+  // 允许跨域的方法
+  config.cors = {
+    origin: '*',
+    allowMethods: 'GET, PUT, POST, DELETE, PATCH',
   };
   config.sequelize = {
     dialect: 'mysql',
@@ -53,6 +69,9 @@ module.exports = appInfo => {
   config.valparams = {
     locale: 'zh-cn',
     throwError: true,
+  };
+  config.crypto = {
+    secret: 'qhdgw@45ncashdaksh2!#@3nxjdas*_672',
   };
   return {
     ...config,

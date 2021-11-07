@@ -1,6 +1,6 @@
 'use strict';
 
-// const crypto = require('crypto');
+const crypto = require('crypto');
 
 module.exports = {
   // 成功提示
@@ -113,5 +113,26 @@ module.exports = {
     });
     params.toast = toast ? JSON.parse(toast) : null;
     await this.render('admin/common/template.html', params);
+  },
+  // 消息提示
+  toast(msg, type = 'danger') {
+    this.cookies.set('toast', JSON.stringify({
+      msg, type,
+    }), {
+      maxAge: 1500,
+      encrypt: true,
+    });
+  },
+  // 验证密码
+  async checkPassword(password, hash_password) {
+    // 先对需要验证的密码进行加密
+    const hmac = crypto.createHash('sha256', this.app.config.crypto.secret);
+    hmac.update(password);
+    password = hmac.digest('hex');
+    const res = password === hash_password;
+    if (!res) {
+      this.throw(400, '密码错误');
+    }
+    return true;
   },
 };
