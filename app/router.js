@@ -6,5 +6,5 @@
 module.exports = app => {
   const { router, controller } = app;
   router.get('/admin', controller.admin.home.index);
-  router.get('/admin/1', controller.admin.manager.create);
+  router.get('/admin/manager/create',controller.admin.manager.create);
 };
