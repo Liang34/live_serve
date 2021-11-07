@@ -1,0 +1,15 @@
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-inner slimscroll">
+        <div id="sidebar-menu" class="sidebar-menu">
+            <ul>
+                {% for item in ctx.locals.sidebar %}
+                <li class="{{item.active}}">
+                    <a href="{{ item.url }}"><i class="fe {{ item.icon }}"></i> <span>{{ item.name }}</span></a>
+                </li>
+                {% endfor %}
+                
+
+            </ul>
+        </div>
+    </div>
+</div>

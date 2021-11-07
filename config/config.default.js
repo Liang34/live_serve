@@ -45,6 +45,15 @@ module.exports = appInfo => {
       underscored: true,
     },
   };
+  config.view = {
+    mapping: {
+      '.html': 'nunjucks',
+    },
+  };
+  config.valparams = {
+    locale: 'zh-cn',
+    throwError: true,
+  };
   return {
     ...config,
     ...userConfig,

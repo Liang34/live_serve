@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+		<title>直播后台 - {% block title %}{% endblock %}</title>
+
+		<!-- Favicon -->
+		<link rel="shortcut icon" type="image/x-icon" href="/public/assets/img/favicon.png">
+
+		<!-- Bootstrap CSS -->
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css">
+
+		<!-- Fontawesome CSS -->
+		<link rel="stylesheet" href="/public/assets/css/font-awesome.min.css">
+
+		<!-- Feathericon CSS -->
+		<link rel="stylesheet" href="/public/assets/css/feathericon.min.css">
+
+		<!-- Main CSS -->
+		<link rel="stylesheet" href="/public/assets/css/style.css">
+
+		<!--[if lt IE 9]>
+			<script src="/public/assets/js/html5shiv.min.js"></script>
+			<script src="/public/assets/js/respond.min.js"></script>
+		<![endif]-->
+		<script src="/public/assets/js/vue.min.js"></script>
+		<script src="/public/assets/js/vue.component.js"></script>
+		<script>
+			var Vueapp = new Vue({
+				el:"#vueapp"
+			})
+		</script>
+	</head>
+	<body>
+
+		<!-- Main Wrapper -->
+		<div class="main-wrapper" id="vueapp">
+
+			<toast ref="toast"></toast>
+			<confirm ref="confirm"></confirm>
+
+			<!-- 头部 -->
+			{% include "admin/layout/_header.html" %}
+			<!-- /头部 -->
+
+			<!-- 侧边栏 -->
+			{% include "admin/layout/_slider.html" %}
+			<!-- /侧边栏 -->
+
+			<!-- Page Wrapper -->
+			<div class="page-wrapper">
+				<div class="content container-fluid">
+
+					{% if title %}
+					<div class="page-header">
+						<div class="row align-items-center">
+							<div class="col">
+								<h3 class="page-title">{{ title }}</h3>
+								<ul class="breadcrumb">
+									<li class="breadcrumb-item"><a href="/admin">后台首页</a></li>
+									<li class="breadcrumb-item active">{{ title }}</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+					{% endif %}
+					
+
+					<div class="row">
+						<div class="col-sm-12">
+
+							{% block main %}
+							
+								{% if tempType === 'table' %}
+									{% include "admin/layout/_table.html" %}
+								{% else %}
+									{% include "admin/layout/_form.html" %}
+								{% endif %}
+							
+							{% endblock %}
+
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- /Page Wrapper -->
+
+		</div>
+		<!-- /Main Wrapper -->
+
+		<!-- jQuery -->
+		<script src="/public/assets/js/jquery-3.2.1.min.js"></script>
+
+		<!-- Bootstrap Core JS -->
+		<script src="/public/assets/js/popper.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>
+
+		<!-- Slimscroll JS -->
+		<script src="/public/assets/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+
+		<!-- Custom JS -->
+		<script src="/public/assets/js/script.js"></script>
+
+		{% block js %}{% endblock %}
+		<script>
+			var toast = "{{ toast.msg }}"
+			if(toast && Vueapp && Vueapp.$refs.toast){
+				Vueapp.$refs.toast.show({
+					msg:"{{ toast.msg }}",
+					type:"{{ toast.type }}"
+				})
+			}
+		</script>
+	</body>
+</html>

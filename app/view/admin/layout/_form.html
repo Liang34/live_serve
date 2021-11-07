@@ -1,0 +1,89 @@
+<div class="card">
+    <div class="card-body">
+        {% if form %}
+        <form action="{{form.action}}" method="POST">
+            {% for item in form.fields %}
+            <div class="form-group row">
+                <label class="col-form-label col-md-2">{{item.label}}</label>
+                <div class="col-md-10">
+                    {% if item.type === 'file' %}
+                    <input name="{{item.name}}" type="file" class="form-control" @change="fileUpload($event,'{{ item.name }}')">
+                    <img :src="form.{{item.name}}" v-if="form.{{item.name}}" class="avatar-lg border rounded p-1 mt-2">
+                    {% else %}
+                    <input name="{{item.name}}" type="{{item.type}}" class="form-control" placeholder="{{item.placeholder}}..." v-model="form.{{item.name}}">
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+            
+            <div class="text-right mt-3">								<button type="submit" class="btn btn-primary" @click.stop.prevent="submit">提 交</button>
+            </div>
+        </form> 
+        {% endif %}
+    </div>
+</div>
+<script>
+    Vueapp = new Vue({
+        el:"#vueapp",
+        data() {
+            return {
+                form:{
+                    {% for item in form.fields %}
+                    {{ item.name }}:"{{ form.data[item.name] if form.data[item.name] else item.default }}",
+                    {% endfor %}
+                }
+            }
+        },
+        methods: {
+            fileUpload(event,name){
+                var _t = this
+                let file = event.target.files
+                let formData = new FormData()
+                formData.append('file',file[0])
+                $.ajax({
+                    type:"POST",
+                    url:"/admin/upload?_csrf={{ctx.csrf|safe}}",
+                    contentType:false,
+                    processData:false,
+                    data:formData,
+                    success:function(result){
+                        _t.form[name] = result.data.url
+                        Vueapp.$refs.toast.show({
+                            msg:"上传成功",
+                            type:"success"
+                        })
+                    },
+                    error:function(e){
+                        Vueapp.$refs.toast.show({
+                            msg:e.responseJSON.data,
+                            type:"danger"
+                        })
+                    }
+                })
+            },
+            submit(){
+                $.ajax({
+                    type:"POST",
+                    url:"{{ form.action }}?_csrf={{ctx.csrf|safe}}",
+                    contentType:"application/json;chatset=UTF-8",
+                    data:JSON.stringify(this.form),
+                    success:function(result){
+                        Vueapp.$refs.toast.show({
+                            msg:"{{ '修改' if id else '新增' }}成功",
+                            type:"success",
+                            success:function(){
+                                window.location.href = "{{ successUrl }}"
+                            }
+                        })
+                    },
+                    error:function(e){
+                        Vueapp.$refs.toast.show({
+                            msg:e.responseJSON.data,
+                            type:"danger"
+                        })
+                    }
+                })
+            }
+        },
+    })
+</script>

@@ -1,0 +1,352 @@
+{% extends "admin/layout/main_app.html" %}
+{% block title %} 后台首页 {% endblock %}
+{% block main %}
+<link rel="stylesheet" href="/public/assets/plugins/morris/morris.css">
+<style>
+    [v-cloak] {
+        display: none;
+    }
+</style>
+<div class="row" v-cloak>
+
+    <div class="col-xl-3 col-sm-6 col-12" v-for="(item,index) in tops"
+    :key="index">
+        <div class="card">
+            <div class="card-body">
+                <div class="dash-widget-header"><span class="text-white p-2 rounded" :class="'bg-' + item.color">
+                        {% raw %}
+                        {{ item.name }}
+                        {% endraw %}
+                    </span>
+                    <div class="dash-count">
+
+                        {% raw %}
+                        {{ item.v1 }}
+                        {% endraw %}
+
+                    </div>
+                </div>
+                <div class="dash-widget-info">
+                    <h4 class="text-secondary">
+                        {% raw %}
+                        {{ item.v2 }}
+                        {% endraw %}
+                    </h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<div class="row">
+    <div class="col-md-12 col-lg-6">
+    
+        <!-- Sales Chart -->
+        <div class="card card-chart">
+            <div class="card-header">
+                <h4 class="card-title">CPU使用情况</h4>
+            </div>
+            <div class="card-body">
+                <div id="morrisArea"></div>
+            </div>
+        </div>
+        <!-- /Sales Chart -->
+        
+    </div>
+    <div class="col-md-12 col-lg-6">
+    
+        <!-- Invoice Chart -->
+        <div class="card card-chart">
+            <div class="card-header">
+                <h4 class="card-title">内存使用情况</h4>
+            </div>
+            <div class="card-body">
+                <div id="morrisLine"></div>
+            </div>
+        </div>
+        <!-- /Invoice Chart -->
+        
+    </div>	
+</div>
+
+<div class="row mb-5">
+    <div class="col-md-12 col-lg-6">
+    
+        <!-- Sales Chart -->
+        <div class="card card-chart">
+            <div class="card-header">
+                <h4 class="card-title">客户端连接</h4>
+            </div>
+            <div class="card-body">
+                <div id="connection"></div>
+            </div>
+        </div>
+        <!-- /Sales Chart -->
+        
+    </div>
+    <div class="col-md-12 col-lg-6">
+    
+        <!-- Invoice Chart -->
+        <div class="card card-chart">
+            <div class="card-header">
+                <h4 class="card-title">网络带宽</h4>
+            </div>
+            <div class="card-body">
+                <div id="network"></div>
+            </div>
+        </div>
+        <!-- /Invoice Chart -->
+        
+    </div>	
+</div>
+
+{% endblock %}
+{% block js %}
+<script src="/public/assets/plugins/raphael/raphael.min.js"></script>
+<script src="/public/assets/plugins/morris/morris.min.js"></script>
+<script>
+    $(function(){
+        new Vue({
+            el:"#vueapp",
+            data() {
+                return {
+                    tops:[{
+                        name:"OS",
+                        key:"os",
+                        v1:"",
+                        v2:"",
+                        color:"primary"
+                    },{
+                        name:"cpu",
+                        key:"cpu",
+                        v1:"",
+                        v2:"",
+                        color:"success"
+                    },{
+                        name:"内存",
+                        key:"mem",
+                        v1:"",
+                        v2:"",
+                        color:"warning"
+                    },{
+                        name:"运行时长",
+                        key:"Uptime",
+                        v1:"",
+                        v2:"",
+                        color:"danger"
+                    }],
+                    cpu:[],
+                    mem:[],
+                    connection:[],
+                    network:[]
+                }
+            },
+            created() {
+                this.getData()
+                setInterval(() => {
+                    this.getData()
+                }, 3000);
+            },
+            methods: {
+                formatSeconds:function(value) {  
+                    var theTime = parseInt(value);// 秒  
+                    var theTime1 = 0;// 分  
+                    var theTime2 = 0;// 小时  
+                    if(theTime > 60) {  
+                        theTime1 = parseInt(theTime/60);  
+                        theTime = parseInt(theTime%60);  
+                            if(theTime1 > 60) {  
+                            theTime2 = parseInt(theTime1/60);  
+                            theTime1 = parseInt(theTime1%60);  
+                            }  
+                    }  
+                        var result = ""+parseInt(theTime)+"秒";  
+                        if(theTime1 > 0) {  
+                        result = ""+parseInt(theTime1)+"分"+result;  
+                        }  
+                        if(theTime2 > 0) {  
+                        result = ""+parseInt(theTime2)+"小时"+result;  
+                        }  
+                    return result;  
+                },
+                bytesToSize:function(bytes) {
+                    if (bytes === 0) return '0 B';
+                    var k = 1000, // or 1024
+                        sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
+                        i = Math.floor(Math.log(bytes) / Math.log(k));
+                    return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
+                },
+                getData:function(){
+                    var _t = this
+                    $.ajax({
+                        type: "GET",
+                        contentType: "application/json;charset=UTF-8",
+                        url:"http://127.0.0.1:23481/api/server",
+                        success: function (result) {
+                            console.log(result)
+                            _t.tops = _t.tops.map(function(item){
+                                if(item.key === 'os'){
+                                    item.v1 = 'arch：' + result.os.arch
+                                    item.v2 = result.os.platform
+                                } else if(item.key === 'cpu'){
+                                    item.v1 = 'num：' + result.cpu.num
+                                    item.v2 = 'speed:' + result.cpu.speed
+                                } else if(item.key === 'mem'){
+                                    item.v1 = '总：' + _t.bytesToSize(result.mem.totle)
+                                    item.v2 = '已用:' + _t.bytesToSize(result.mem.free)
+                                } else {
+                                    item.v2 = _t.formatSeconds(result.nodejs.uptime)
+                                }
+                                return item
+                            })
+    
+                            // cpu情况更新
+                            if(_t.cpu.length > 9){
+                                _t.cpu.splice(0,1)
+                            }
+                            _t.cpu.push({
+                                year:_t.getCurrentTime('YYYY-mm-dd HH:MM:SS'),
+                                a:result.cpu.load
+                            })
+                            // 内存情况更新
+                            if(_t.mem.length > 9){
+                                _t.mem.splice(0,1)
+                            }
+                            _t.mem.push({
+                                year:_t.getCurrentTime('YYYY-mm-dd HH:MM:SS'),
+                                a:((result.mem.free/result.mem.totle) * 100).toFixed(2)
+                            })
+    
+                            // 连接
+                            if(_t.connection.length > 9){
+                                _t.connection.splice(0,1)
+                            }
+                            _t.connection.push({
+                                year:_t.getCurrentTime('YYYY-mm-dd HH:MM:SS'),
+                                rtmp:result.clients.rtmp,
+                                http:result.clients.http,
+                                websocket:result.clients.ws,
+                            })
+    
+                            // 网络
+                            if(_t.network.length > 9){
+                                _t.network.splice(0,1)
+                            }
+                            _t.network.push({
+                                year:_t.getCurrentTime('YYYY-mm-dd HH:MM:SS'),
+                                input:result.net.inbytes,
+                                output:result.net.outbytes,
+                            })
+    
+                            _t.drawLine()
+                        },
+                        error: function (e) {
+                            console.log(e)
+                        }
+                    });
+                },
+                drawLine:function(){
+                    $("#morrisArea").empty();
+                    $("#morrisArea svg").remove();
+                    window.mA = Morris.Area({
+                        element: 'morrisArea',
+                        data: this.cpu,
+                        xkey: 'year',
+                        ykeys: ['a'],
+                        labels: ['cpu'],
+                        lineColors: ['#2962ff'],
+                        lineWidth: 0,
+                        fillOpacity: 0.5,
+                        gridTextSize: 10,
+                        hideHover: 'auto',
+                        resize: true,
+                        redraw: true
+                    });
+    
+                    $("#morrisLine").empty();
+                    $("#morrisLine svg").remove();
+                    window.mL = Morris.Area({
+                        element: 'morrisLine',
+                        data: this.mem,
+                        xkey: 'year',
+                        ykeys: ['a'],
+                        labels: ['内存'],
+                        lineColors: ['#2962ff'],
+                        lineWidth: 0,
+                        fillOpacity: 0.5,
+                        gridTextSize: 10,
+                        hideHover: 'auto',
+                        resize: true,
+                        redraw: true
+                    });
+    
+                    $("#connection").empty();
+                    $("#connection svg").remove();
+                    window.mconnection = Morris.Area({
+                        element: 'connection',
+                        data: this.connection,
+                        xkey: 'year',
+                        ykeys: ['rtmp','http','websocket'],
+                        labels: ['rtmp','http','websocket'],
+                        lineColors: ['#007bff','#ffc107','#28a745'],
+                        lineWidth: 0,
+                        fillOpacity: 0.5,
+                        gridTextSize: 10,
+                        hideHover: 'auto',
+                        resize: true,
+                        redraw: true
+                    });
+    
+                    $("#network").empty();
+                    $("#network svg").remove();
+                    window.mnetwork = Morris.Area({
+                        element: 'network',
+                        data: this.network,
+                        xkey: 'year',
+                        ykeys: ['input','output'],
+                        labels: ['input','output'],
+                        lineColors: ['#2962ff','#ffc107'],
+                        lineWidth: 0,
+                        fillOpacity: 0.5,
+                        gridTextSize: 10,
+                        hideHover: 'auto',
+                        resize: true,
+                        redraw: true
+                    });
+                },
+                getCurrentTime:function(fmt){
+                    let date = new Date
+                    let ret;
+                    const opt = {
+                        "Y+": date.getFullYear().toString(),        // 年
+                        "m+": (date.getMonth() + 1).toString(),     // 月
+                        "d+": date.getDate().toString(),            // 日
+                        "H+": date.getHours().toString(),           // 时
+                        "M+": date.getMinutes().toString(),         // 分
+                        "S+": date.getSeconds().toString()          // 秒
+                        // 有其他格式化字符需求可以继续添加，必须转化成字符串
+                    };
+                    for (let k in opt) {
+                        ret = new RegExp("(" + k + ")").exec(fmt);
+                        if (ret) {
+                            fmt = fmt.replace(ret[1], (ret[1].length == 1) ? (opt[k]) : (opt[k].padStart(ret[1].length, "0")))
+                        };
+                    };
+                    return fmt;
+                }
+            },
+        })
+    
+        
+    
+        $(window).on("resize", function(){
+            mA.redraw();
+            mL.redraw();
+            mconnection.redraw();
+            mnetwork.redraw();
+        });
+    
+    });
+    </script>
+    
+{% endblock %}
