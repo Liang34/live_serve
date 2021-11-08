@@ -7,7 +7,9 @@
     "declarations": true
   },
   "dependencies": {
+    "await-stream-ready": "^1.0.1",
     "crypto": "^1.0.1",
+    "dayjs": "^1.10.7",
     "egg": "^2.15.1",
     "egg-bin": "^4.16.4",
     "egg-cors": "^2.2.3",
@@ -17,7 +19,8 @@
     "egg-view-nunjucks": "^2.3.0",
     "mysql2": "^2.3.3-rc.0",
     "sequelize": "^6.9.0",
-    "sequelize-cli": "^6.3.0"
+    "sequelize-cli": "^6.3.0",
+    "stream-wormhole": "^1.1.0"
   },
   "devDependencies": {
     "autod": "^3.0.1",
