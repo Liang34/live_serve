@@ -17,4 +17,12 @@ module.exports = app => {
   router.get('/admin/login', controller.admin.home.login);
   router.post('/admin/loginevent', controller.admin.home.loginevent);
   router.get('/admin/logout', controller.admin.home.logout);
+
+  // userManager
+  router.get('/admin/user/delete/:id',controller.admin.user.delete);
+  router.get('/admin/user/edit/:id',controller.admin.user.edit);
+  router.get('/admin/user',controller.admin.user.index);
+  router.get('/admin/user/create',controller.admin.user.create);
+  router.post('/admin/user', controller.admin.user.save);
+  router.post('/admin/user/:id', controller.admin.user.update);
 };
