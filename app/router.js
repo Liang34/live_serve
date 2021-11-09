@@ -34,8 +34,17 @@ module.exports = app => {
   router.get('/admin/gift', controller.admin.gift.index);
   router.post('/admin/gift/:id', controller.admin.gift.update);
 
-  // orderManager
   router.post('/admin/upload', controller.admin.common.upload);
+
+  // orderManager
   router.get('/admin/order/delete/:id', controller.admin.order.delete);
   router.get('/admin/order', controller.admin.order.index);
+
+  // liveManager
+  router.get('/admin/live', controller.admin.live.index);
+  router.get('/admin/live/look/:id', controller.admin.live.look); // 观看记录
+  router.get('/admin/live/gift/:id', controller.admin.live.gift);
+  router.get('/admin/live/comment/:id', controller.admin.live.comment);
+  router.get('/admin/live/close/:id', controller.admin.live.close);
+  router.get('/admin/live/delete/:id', controller.admin.live.delete);
 };
