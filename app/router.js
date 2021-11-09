@@ -36,7 +36,6 @@ module.exports = app => {
 
   // orderManager
   router.post('/admin/upload', controller.admin.common.upload);
-
-  // router.get('/admin/order/delete/:id', controller.admin.order.delete);
-  // router.get('/admin/order', controller.admin.order.index);
+  router.get('/admin/order/delete/:id', controller.admin.order.delete);
+  router.get('/admin/order', controller.admin.order.index);
 };
