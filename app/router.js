@@ -19,10 +19,24 @@ module.exports = app => {
   router.get('/admin/logout', controller.admin.home.logout);
 
   // userManager
-  router.get('/admin/user/delete/:id',controller.admin.user.delete);
-  router.get('/admin/user/edit/:id',controller.admin.user.edit);
-  router.get('/admin/user',controller.admin.user.index);
-  router.get('/admin/user/create',controller.admin.user.create);
+  router.get('/admin/user/delete/:id', controller.admin.user.delete);
+  router.get('/admin/user/edit/:id', controller.admin.user.edit);
+  router.get('/admin/user', controller.admin.user.index);
+  router.get('/admin/user/create', controller.admin.user.create);
   router.post('/admin/user', controller.admin.user.save);
   router.post('/admin/user/:id', controller.admin.user.update);
+
+  // giftManager
+  router.get('/admin/gift/delete/:id', controller.admin.gift.delete);
+  router.get('/admin/gift/edit/:id', controller.admin.gift.edit);
+  router.get('/admin/gift/create', controller.admin.gift.create);
+  router.post('/admin/gift', controller.admin.gift.save);
+  router.get('/admin/gift', controller.admin.gift.index);
+  router.post('/admin/gift/:id', controller.admin.gift.update);
+
+  // orderManager
+  router.post('/admin/upload', controller.admin.common.upload);
+
+  // router.get('/admin/order/delete/:id', controller.admin.order.delete);
+  // router.get('/admin/order', controller.admin.order.index);
 };
