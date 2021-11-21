@@ -16,11 +16,39 @@ module.exports = appInfo => {
   config.keys = appInfo.name + '_1636162922921_7970';
 
   // add your middleware config here
-  config.middleware = [ 'adminSidebar' ];
+  config.middleware = [ 'adminSidebar', 'auth' ];
 
   // add your user config here
+  config.auth = {
+    match: [
+      '/api/logout',
+      '/api/live/create',
+      '/api/live/changestatus',
+      '/api/gift/wxpay',
+      '/api/user/info',
+      '/api/upload',
+    ],
+  };
   const userConfig = {
     // myAppName: 'egg',
+  };
+  config.mediaServer = {
+    rtmp: {
+      port: 23480,
+      chunk_size: 60000,
+      gop_cache: true,
+      ping: 30,
+      ping_timeout: 60,
+    },
+    http: {
+      port: 23481,
+      allow_origin: '*',
+    },
+    auth: {
+      play: true,
+      publish: true,
+      secret: 'nodemedia2017privatekey',
+    },
   };
   config.security = {
     // csrf
@@ -72,6 +100,18 @@ module.exports = appInfo => {
   };
   config.crypto = {
     secret: 'qhdgw@45ncashdaksh2!#@3nxjdas*_672',
+  };
+  config.jwt = {
+    secret: 'qhdgw@45ncashdaksh2!#@3nxjdas*_672',
+  };
+  // redis存储
+  config.redis = {
+    client: {
+      port: 6379, // Redis port
+      host: '127.0.0.1', // Redis host
+      password: '',
+      db: 2,
+    },
   };
   return {
     ...config,

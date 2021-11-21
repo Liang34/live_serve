@@ -47,4 +47,13 @@ module.exports = app => {
   router.get('/admin/live/comment/:id', controller.admin.live.comment);
   router.get('/admin/live/close/:id', controller.admin.live.close);
   router.get('/admin/live/delete/:id', controller.admin.live.delete);
+
+  // apiUser
+  router.post('/api/reg', controller.api.user.reg);
+  // 用户登录
+  router.post('/api/login', controller.api.user.login);
+  // 退出登录
+  router.post('/api/logout', controller.api.user.logout);
+  // 获取用户信息
+  router.get('/api/user/info', controller.api.user.info);
 };
