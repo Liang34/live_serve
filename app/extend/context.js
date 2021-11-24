@@ -143,4 +143,10 @@ module.exports = {
   checkToken(token) {
     return this.app.jwt.verify(token, this.app.config.jwt.secret);
   },
+  randomString(length) {
+    const chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let result = '';
+    for (let i = length; i > 0; --i) result += chars[Math.floor(Math.random() * chars.length)];
+    return result;
+  },
 };

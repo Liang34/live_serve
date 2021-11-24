@@ -56,4 +56,9 @@ module.exports = app => {
   router.post('/api/logout', controller.api.user.logout);
   // 获取用户信息
   router.get('/api/user/info', controller.api.user.info);
+
+  // 创建直播间
+  router.post('/api/live/create', controller.api.live.save);
+  // 修改直播状态
+  router.post('/api/live/changestatus', controller.api.live.changeStatus);
 };

@@ -1,5 +1,5 @@
 'use strict';
-module.exports = app => {
+module.exports = (option, app) => {
   return async (ctx, next) => {
     // 1.获取token
     const token = ctx.header.token || ctx.query.token;
