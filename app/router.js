@@ -61,4 +61,8 @@ module.exports = app => {
   router.post('/api/live/create', controller.api.live.save);
   // 修改直播状态
   router.post('/api/live/changestatus', controller.api.live.changeStatus);
+  // 直播间列表
+  router.get('/api/live/list/:page', controller.api.live.list);
+  // 查看直播间
+  router.get('/api/live/read/:id', controller.api.live.read);
 };
