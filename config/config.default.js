@@ -113,6 +113,17 @@ module.exports = appInfo => {
       db: 2,
     },
   };
+  config.webUrl = 'http://127.0.0.1:7001';// 部署域名链接
+  // 微信支付配置
+  config.tenpay = {
+    client: {
+      appid: 'wxc559eade7d0a3bde',
+      mchid: '1554108981',
+      partnerKey: '8b07811ec793049f1c97793464c7049f',
+      notify_url: config.webUrl + '/api/gift/notify',
+      // sandbox: true
+    },
+  };
   return {
     ...config,
     ...userConfig,
