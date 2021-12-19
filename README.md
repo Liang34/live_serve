@@ -1,7 +1,10 @@
 # live_serve
-
+这个项目分为两个模块：
+①后端
 直播后台接口
+
 https://github.com/Liang34/live_serve.git
+
 ## QuickStart
 
 <!-- add docs here for user -->
@@ -331,5 +334,13 @@ config.mediaServer = {
     secret: 'nodemedia2017privatekey',
   },
 };
+```
+
+创建订单和微信支付
+
+插件：`egg-tenpay`
+
+```
+npm i egg-tenpay --save
 ```
 
