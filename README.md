@@ -1,7 +1,24 @@
 # live_serve
+这个项目分为两个模块：
+
+#### 后端管理系统模块
+
+用户管理模块包括：
+
+模板渲染引擎：`egg-view-nunjucks`
+
+- 用户管理
+- 直播间管理
+- 礼物管理
+- 订单管理
+- 管理员管理
+
+#### 前端接口处理模块
 
 直播后台接口
+
 https://github.com/Liang34/live_serve.git
+
 ## QuickStart
 
 <!-- add docs here for user -->
@@ -331,5 +348,13 @@ config.mediaServer = {
     secret: 'nodemedia2017privatekey',
   },
 };
+```
+
+创建订单和微信支付
+
+插件：`egg-tenpay`
+
+```
+npm i egg-tenpay --save
 ```
 

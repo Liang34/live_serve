@@ -65,4 +65,6 @@ module.exports = app => {
   router.get('/api/live/list/:page', controller.api.live.list);
   // 查看直播间
   router.get('/api/live/read/:id', controller.api.live.read);
+  // 礼物列表
+  router.get('/api/gift/list', controller.api.gift.list);
 };
