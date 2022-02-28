@@ -50,6 +50,7 @@ class UserController extends Controller {
   // 登录
   async login() {
     const { ctx, app } = this;
+    console.log('hhhh');
     // 参数验证
     ctx.validate({
       username: {

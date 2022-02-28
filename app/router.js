@@ -67,4 +67,80 @@ module.exports = app => {
   router.get('/api/live/read/:id', controller.api.live.read);
   // 礼物列表
   router.get('/api/gift/list', controller.api.gift.list);
+  // 图片上传： 返回路径地址与路径名
+  router.post('/api/upload/imgUpload', controller.admin.common.upload);
+  // 视频信息上传
+  router.post('/api/upload/vedioMes', controller.api.vedio.vedioMes);
+  // 获取所有粉丝
+  router.post('/api/fans/getAllFans', controller.api.fans.getAllFans);
+  // 获取所有关注者
+  router.post('/api/fans/getAllFllowers', controller.api.fans.getAllFllowers);
+  // 统计关注的数量与粉丝的数量
+  router.post('/api/fans/getNumCount', controller.api.fans.getNumCount);
+  // 获取用户的所有作品
+  router.post('/api/vedio/getAllPost', controller.api.vedio.getAllPost);
+  // 新增视频评论
+  router.post('/api/vedio/addComment', controller.api.vedio.addComment);
+  // 获取所有评论
+  router.post('/api/vedio/getAllComment', controller.api.vedio.getAllComment);
+  // 获取用户点赞视频状态
+  router.post('/api/vedio/getLikeStatue', controller.api.vedio.getLikeStatue);
+  // 改变用户点赞状态
+  router.post('/api/vedio/changeState', controller.api.vedio.changeStatus);
+  // 获取用户所有的点赞视频
+  router.post('/api/vedio/getAllLike', controller.api.vedio.getAllLike);
+  // 用户验证
+  app.ws.use(async (ctx, next) => {
+    // 获取参数 ws://localhost:7001/ws?token=123456
+    // ctx.query.token
+    // 验证用户token
+    let user = {};
+    const token = ctx.query.token;
+    try {
+      user = ctx.checkToken(token);
+      // 验证用户状态
+      // const userCheck = await app.model.User.findByPk(user.id);
+      // if (!userCheck) {
+      //   ctx.websocket.send(JSON.stringify({
+      //     msg: 'fail',
+      //     data: '用户不存在',
+      //   }));
+      //   return ctx.websocket.close();
+      // }
+      // if (!userCheck.status) {
+      //   ctx.websocket.send(JSON.stringify({
+      //     msg: 'fail',
+      //     data: '你已被禁用',
+      //   }));
+      //   return ctx.websocket.close();
+      // }
+      // 用户上线
+      app.ws.user = app.ws.user ? app.ws.user : {};
+      // 下线其他设备
+      // if (app.ws.user[user.id]) {
+      //   app.ws.user[user.id].send(JSON.stringify({
+      //     msg: "fail",
+      //     data: '你的账号在其他设备登录'
+      //   }));
+      //   app.ws.user[user.id].close();
+      // }
+      // 记录当前用户id
+      ctx.websocket.user_id = user.id;
+      app.ws.user[user.id] = ctx.websocket;
+
+      ctx.online(user.id);
+
+      await next();
+    } catch (err) {
+      console.log(err);
+      const fail = err.name === 'TokenExpiredError' ? 'token 已过期! 请重新获取令牌' : 'Token 令牌不合法!';
+      ctx.websocket.send(JSON.stringify({
+        msg: 'fail',
+        data: fail,
+      }));
+      // 关闭连接
+      ctx.websocket.close();
+    }
+  });
+  app.ws.route('/ws', app.controller.api.chat.connect);
 };

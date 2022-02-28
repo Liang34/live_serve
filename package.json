@@ -20,6 +20,7 @@
     "egg-tenpay": "^1.0.1",
     "egg-valparams": "^1.4.5",
     "egg-view-nunjucks": "^2.3.0",
+    "egg-websocket-plugin": "^1.0.1",
     "md5": "^2.3.0",
     "mysql2": "^2.3.3-rc.0",
     "node-media-server": "^2.3.8",
