@@ -34,9 +34,13 @@ module.exports = {
         defaultValue: 0,
         comment: '金币',
       },
+      description: {
+        type: STRING,
+        allowNull: true,
+        comment: '个人描述',
+      },
       created_time: DATE,
       updated_time: DATE,
-
     });
   },
 

@@ -26,7 +26,6 @@ module.exports = appInfo => {
       '/api/live/changestatus',
       '/api/gift/wxpay',
       '/api/user/info',
-      '/api/upload',
     ],
   };
   const userConfig = {

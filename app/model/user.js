@@ -41,6 +41,11 @@ module.exports = app => {
       defaultValue: 0,
       comment: '金币',
     },
+    description: {
+      type: STRING,
+      allowNull: true,
+      comment: '个人描述',
+    },
     created_time: {
       type: DATE,
       get() {
@@ -49,5 +54,15 @@ module.exports = app => {
     },
     updated_time: DATE,
   });
+  // User.associate = function() {
+  //   User.hasMany(app.model.Fans, {
+  //     forignKey: 'fans_id',
+  //     sourceKey: 'id',
+  //   });
+  //   User.hasMany(app.model.Fans, {
+  //     forignKey: 'fllower_id',
+  //     sourceKey: 'id',
+  //   });
+  // };
   return User;
 };
