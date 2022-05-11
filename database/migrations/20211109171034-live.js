@@ -57,6 +57,11 @@ module.exports = {
         defaultValue: 0,
         comment: '直播间状态 0未开播 1直播中 2暂停直播 3直播结束',
       },
+      live_tag: {
+        type: INTEGER(6),
+        defaultValue: 0,
+        comment: '视频分类',
+      },
       created_time: DATE,
       updated_time: DATE,
     });

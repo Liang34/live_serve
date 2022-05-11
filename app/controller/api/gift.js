@@ -45,7 +45,6 @@ class GiftController extends Controller {
   async notify() {
     const { ctx, app, service } = this;
     const info = ctx.request.weixin;
-
     if (!info || info.result_code !== 'SUCCESS') {
       return ctx.reply('支付失败');
     }

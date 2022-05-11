@@ -30,12 +30,16 @@ module.exports = {
     enable: true,
     package: 'egg-redis',
   },
-  websocket: {
-    enable: true,
-    package: 'egg-websocket-plugin',
-  },
+  // websocket: {
+  //   enable: true,
+  //   package: 'egg-websocket-plugin',
+  // },
   tenpay: {
     enable: true,
     package: 'egg-tenpay',
+  },
+  io: {
+    enable: true,
+    package: 'egg-socket.io',
   },
 };

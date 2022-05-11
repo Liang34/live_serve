@@ -68,5 +68,36 @@ class FansControll extends Controller {
     const res = { fllowerCount, fansCount };
     ctx.apiSuccess(res);
   }
+  async isFlower() {
+    const { ctx, app } = this;
+    const { fans_id, fllower_id } = ctx.request.body;
+    const res = await app.model.Fans.findOne({
+      where: {
+        fans_id,
+        fllower_id,
+      },
+    });
+    ctx.apiSuccess(res);
+  }
+  async delFans() {
+    const { ctx, app } = this;
+    const { fans_id, fllower_id, isFans } = ctx.request.body;
+    if (isFans) {
+      const res = await app.model.Fans.destroy({
+        where: {
+          fans_id, fllower_id,
+        },
+      });
+      ctx.apiSuccess(res);
+    } else {
+      // bug
+      console.log('id', fans_id, fllower_id);
+      const res = await app.model.Fans.create({
+        fans_id,
+        fllower_id,
+      });
+      ctx.apiSuccess(res);
+    }
+  }
 }
 module.exports = FansControll;

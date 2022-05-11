@@ -5,7 +5,6 @@ class VedioController extends Controller {
   // 上传视频
   async vedioMes() {
     const { ctx, app } = this;
-    console.log(ctx.request.body);
     const {
       vedio_name,
       vedio_path,
@@ -17,7 +16,6 @@ class VedioController extends Controller {
     } = ctx.request.body;
     const updated_time = new Date();
     const created_time = new Date();
-    console.log(vedio_path);
     const vedio = await app.model.Vedio.create({
       vedio_name,
       vedio_path,
@@ -28,6 +26,8 @@ class VedioController extends Controller {
       user_id,
       updated_time,
       created_time,
+      comment_count: 0,
+      hot_count: 0,
     });
     if (!vedio) {
       ctx.throw(400, '上传失败，请稍后再试');
@@ -42,18 +42,42 @@ class VedioController extends Controller {
       where: {
         user_id: id,
       },
+      include: app.model.User,
     });
     ctx.apiSuccess(res);
   }
   // 添加视频评论
   async addComment() {
     const { app, ctx } = this;
-    const { user_id, vedio_id, content } = ctx.request.body;
+    const { user_id, vedio_id, content, orign_user_id } = ctx.request.body;
     const res = await app.model.VedioComment.create({
       user_id,
       vedio_id,
       content,
+      orign_user_id,
     });
+    // 更新视频热度
+    // 更新视频的点赞数量
+    const video = await app.model.Vedio.findOne({
+      where: {
+        id: vedio_id,
+      },
+    });
+    video.comment_count += 1;
+    video.hot_count += 1;
+    await video.save();
+    ctx.apiSuccess(res);
+  }
+  async getCommentByUser() {
+    const { app, ctx } = this;
+    const { orign_user_id } = ctx.request.body;
+    const res = await app.model.VedioComment.findAll({
+      where: {
+        orign_user_id,
+      },
+      include: [ app.model.User, app.model.Vedio ],
+    });
+    console.log(res);
     ctx.apiSuccess(res);
   }
   // 获取所有评论
@@ -96,18 +120,35 @@ class VedioController extends Controller {
   // 改变状态
   async changeStatus() {
     const { ctx, app } = this;
-    const { user_id, vedio_id, status } = ctx.request.body;
-    const like = await app.model.Like.findOne({
+    const { user_id, vedio_id, status, orign_user_id } = ctx.request.body;
+    const like = await app.model.Like.findOne({// 更新喜爱列表
       where: {
         user_id,
         vedio_id,
       },
     });
-    console.log(like);
     like.status = status;
-    // const res = await like.update({
-    //   state: false,
-    // });
+    // 更新视频的点赞数量
+    const video = await app.model.Vedio.findOne({
+      where: {
+        id: vedio_id,
+      },
+    });
+    if (status === true) {
+      video.like_count += 1;
+      video.hot_count += 1;
+    } else {
+      video.like_count -= 1;
+      video.hot_count -= 1;
+    }
+    const user = await app.model.User.findOne({
+      where: {
+        id: orign_user_id,
+      },
+    });
+    user.get_likes += 1;
+    await user.save();
+    await video.save();
     ctx.apiSuccess(await like.save());
   }
   // 获取用户所有的点赞视频
@@ -121,6 +162,65 @@ class VedioController extends Controller {
       },
       include: app.model.Vedio,
     });
+    ctx.apiSuccess(res);
+  }
+  // 根据点击标签，返回根据热度排行的数据
+  async getVedioByTag() {
+    const { app, ctx } = this;
+    const { vedio_tag } = ctx.request.body;
+    const res = await app.model.Vedio.findAll({
+      where: {
+        vedio_tag,
+      },
+      order: [[ 'hot_count', 'DESC' ]],
+    });
+    ctx.apiSuccess(res);
+  }
+  // 根据用户的tag返回相关的视频或直播
+  async getVedioByUserTags() {
+    const { app, ctx } = this;
+    const { user } = ctx.request.body;
+    // 取到用户的tags
+    let tags = user.tags;
+    if (typeof tags === 'string') {
+      tags = JSON.parse(tags);
+    }
+    // 查询用户感兴趣的直播
+    const res = {
+      video: [],
+      live: [],
+    };
+    // 查询用户感兴趣的直播
+    for (let i = 0; i < tags.length; i++) {
+      const lives = await app.model.Live.findAll({
+        limit: 2,
+        where: {
+          live_tag: tags[i],
+          status: 1,
+        },
+        include: app.model.User,
+      });
+      if (Array.isArray(lives)) {
+        res.live.push(...lives);
+      } else {
+        res.live.push(lives);
+      }
+    }
+    // 分组查询用户感兴趣的视频
+    for (let i = 0; i < tags.length; i++) {
+      // 查询用户感兴趣的视频
+      const video = await app.model.Vedio.findAll({
+        where: {
+          vedio_tag: tags[i],
+        },
+      });
+      if (Array.isArray(video)) {
+        res.video.push(...video);
+      } else {
+        res.video.push(video);
+      }
+    }
+    res.video.sort((a, b) => b.hot_count - a.hot_count);// 短视频热度排行
     ctx.apiSuccess(res);
   }
 }

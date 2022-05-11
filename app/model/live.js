@@ -45,6 +45,11 @@ module.exports = app => {
       defaultValue: 0,
       comment: '总金币',
     },
+    live_tag: {
+      type: INTEGER(6),
+      defaultValue: 0,
+      comment: '视频分类',
+    },
     key: {
       type: STRING,
       allowNull: false,

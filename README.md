@@ -357,4 +357,6 @@ config.mediaServer = {
 ```
 npm i egg-tenpay --save
 ```
-
+发现一个很奇怪的问题：token的验证
+socket.io安装与通讯
+npm i egg-socket.io --save

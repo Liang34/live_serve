@@ -32,6 +32,16 @@ module.exports = app => {
       defaultValue: 0,
       comment: '点赞数量',
     },
+    comment_count: {
+      type: INTEGER,
+      defaultValue: 0,
+      comment: '点赞数量',
+    },
+    hot_count: {
+      type: INTEGER,
+      defaultValue: 0,
+      comment: '热度',
+    },
     vedio_cover: {
       type: STRING(100),
       defaultValue: '',
@@ -62,5 +72,8 @@ module.exports = app => {
     },
     updated_time: DATE,
   });
+  Vedio.associate = function() {
+    Vedio.belongsTo(app.model.User);
+  };
   return Vedio;
 };

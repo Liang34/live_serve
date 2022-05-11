@@ -22,15 +22,15 @@ module.exports = appInfo => {
   config.auth = {
     match: [
       '/api/logout',
-      '/api/live/create',
+      '/api/live/create', // 这里会有验证问题暂时关掉
       '/api/live/changestatus',
       '/api/gift/wxpay',
-      '/api/user/info',
     ],
   };
   const userConfig = {
     // myAppName: 'egg',
   };
+  // 流媒体设置
   config.mediaServer = {
     rtmp: {
       port: 23480,
@@ -123,6 +123,24 @@ module.exports = appInfo => {
       // sandbox: true
     },
   };
+  // socket配置
+  config.io = {
+    init: {
+      wsEngine: 'ws',
+    },
+    namespace: {
+      '/': {
+        connectionMiddleware: [],
+        packetMiddleware: [],
+      },
+    },
+    redis: {
+      host: '127.0.0.1',
+      port: 6379,
+      db: 0,
+    },
+  };
+
   return {
     ...config,
     ...userConfig,

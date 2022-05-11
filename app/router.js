@@ -4,7 +4,7 @@
  * @param {Egg.Application} app - egg application
  */
 module.exports = app => {
-  const { router, controller } = app;
+  const { router, controller, io } = app;
   router.get('/admin', controller.admin.home.index);
 
   router.get('/admin/manager/delete/:id', controller.admin.manager.delete);
@@ -55,8 +55,23 @@ module.exports = app => {
   // 退出登录
   router.post('/api/logout', controller.api.user.logout);
   // 获取用户信息
-  router.get('/api/user/info', controller.api.user.info);
-
+  router.post('/api/user/info', controller.api.user.info);
+  // 根据user_id获取用户id
+  router.post('/api/user/query', controller.api.user.query);
+  // 修改用户头像
+  router.post('/api/user/updateAvatar', controller.api.user.updateAvatar);
+  // 更新用户名
+  router.post('/api/user/updateUserName', controller.api.user.updateUserName);
+  // 更新性别
+  router.post('/api/user/updateGender', controller.api.user.updateGender);
+  // 更新简介
+  router.post('/api/user/updateDesc', controller.api.user.updateDesc);
+  // 更新标签
+  router.post('/api/user/updateTags', controller.api.user.updateTags);
+  // 更新硬币
+  router.post('/api/user/updateCoin', controller.api.user.updateCoin);
+  // 获取用户
+  router.post('/api/live/userLive', controller.api.live.userLive);
   // 创建直播间
   router.post('/api/live/create', controller.api.live.save);
   // 修改直播状态
@@ -77,6 +92,10 @@ module.exports = app => {
   router.post('/api/fans/getAllFllowers', controller.api.fans.getAllFllowers);
   // 统计关注的数量与粉丝的数量
   router.post('/api/fans/getNumCount', controller.api.fans.getNumCount);
+  // 是否是对方粉丝
+  router.post('/api/fans/isFlower', controller.api.fans.isFlower);
+  // 取关或者关注
+  router.post('/api/fans/delFans', controller.api.fans.delFans);
   // 获取用户的所有作品
   router.post('/api/vedio/getAllPost', controller.api.vedio.getAllPost);
   // 新增视频评论
@@ -89,58 +108,77 @@ module.exports = app => {
   router.post('/api/vedio/changeState', controller.api.vedio.changeStatus);
   // 获取用户所有的点赞视频
   router.post('/api/vedio/getAllLike', controller.api.vedio.getAllLike);
+  // 根据vedio_tag返回视频类型
+  router.post('/api/vedio/getVedioByTag', controller.api.vedio.getVedioByTag);
+  // 根据用户的tag返回视频类型
+  router.post('/api/vedio/getVedioByUserTags', controller.api.vedio.getVedioByUserTags);
+  // 获取用户的评论
+  router.post('/api/video/getCommentByUser', controller.api.vedio.getCommentByUser);
+  // 获取离线消息
+  router.post('/api/chat/getChatHistory', controller.api.chat.getChatHistory);
+  // 发送消息
+  router.post('/api/chat/send', controller.api.chat.send);
+  // 获取历史记录
+  router.post('/api/chat/getHistoryMessage', controller.api.chat.getHistoryMessage);
+  // 直播间礼物
+  io.of('/').route('joinLive', io.controller.live.joinLive);
+  io.of('/').route('leaveLive', io.controller.live.leaveLive);
+  io.of('/').route('comment', io.controller.live.comment);
+  io.of('/').route('gift', io.controller.live.gift);
+  io.of('/').route('chatConnect', io.controller.live.chatConnect);
+  io.of('/').route('chatSend', io.controller.live.chatSend);
   // 用户验证
-  app.ws.use(async (ctx, next) => {
-    // 获取参数 ws://localhost:7001/ws?token=123456
-    // ctx.query.token
-    // 验证用户token
-    let user = {};
-    const token = ctx.query.token;
-    try {
-      user = ctx.checkToken(token);
-      // 验证用户状态
-      // const userCheck = await app.model.User.findByPk(user.id);
-      // if (!userCheck) {
-      //   ctx.websocket.send(JSON.stringify({
-      //     msg: 'fail',
-      //     data: '用户不存在',
-      //   }));
-      //   return ctx.websocket.close();
-      // }
-      // if (!userCheck.status) {
-      //   ctx.websocket.send(JSON.stringify({
-      //     msg: 'fail',
-      //     data: '你已被禁用',
-      //   }));
-      //   return ctx.websocket.close();
-      // }
-      // 用户上线
-      app.ws.user = app.ws.user ? app.ws.user : {};
-      // 下线其他设备
-      // if (app.ws.user[user.id]) {
-      //   app.ws.user[user.id].send(JSON.stringify({
-      //     msg: "fail",
-      //     data: '你的账号在其他设备登录'
-      //   }));
-      //   app.ws.user[user.id].close();
-      // }
-      // 记录当前用户id
-      ctx.websocket.user_id = user.id;
-      app.ws.user[user.id] = ctx.websocket;
+  // app.ws.use(async (ctx, next) => {
+  //   // 获取参数 ws://localhost:7001/ws?token=123456
+  //   // ctx.query.token
+  //   // 验证用户token
+  //   let user = {};
+  //   const token = ctx.query.token;
+  //   try {
+  //     user = ctx.checkToken(token);
+  //     // 验证用户状态
+  //     // const userCheck = await app.model.User.findByPk(user.id);
+  //     // if (!userCheck) {
+  //     //   ctx.websocket.send(JSON.stringify({
+  //     //     msg: 'fail',
+  //     //     data: '用户不存在',
+  //     //   }));
+  //     //   return ctx.websocket.close();
+  //     // }
+  //     // if (!userCheck.status) {
+  //     //   ctx.websocket.send(JSON.stringify({
+  //     //     msg: 'fail',
+  //     //     data: '你已被禁用',
+  //     //   }));
+  //     //   return ctx.websocket.close();
+  //     // }
+  //     // 用户上线
+  //     app.ws.user = app.ws.user ? app.ws.user : {};
+  //     // 下线其他设备
+  //     // if (app.ws.user[user.id]) {
+  //     //   app.ws.user[user.id].send(JSON.stringify({
+  //     //     msg: "fail",
+  //     //     data: '你的账号在其他设备登录'
+  //     //   }));
+  //     //   app.ws.user[user.id].close();
+  //     // }
+  //     // 记录当前用户id
+  //     ctx.websocket.user_id = user.id;
+  //     app.ws.user[user.id] = ctx.websocket;
 
-      ctx.online(user.id);
+  //     ctx.online(user.id);
 
-      await next();
-    } catch (err) {
-      console.log(err);
-      const fail = err.name === 'TokenExpiredError' ? 'token 已过期! 请重新获取令牌' : 'Token 令牌不合法!';
-      ctx.websocket.send(JSON.stringify({
-        msg: 'fail',
-        data: fail,
-      }));
-      // 关闭连接
-      ctx.websocket.close();
-    }
-  });
-  app.ws.route('/ws', app.controller.api.chat.connect);
+  //     await next();
+  //   } catch (err) {
+  //     console.log(err);
+  //     const fail = err.name === 'TokenExpiredError' ? 'token 已过期! 请重新获取令牌' : 'Token 令牌不合法!';
+  //     ctx.websocket.send(JSON.stringify({
+  //       msg: 'fail',
+  //       data: fail,
+  //     }));
+  //     // 关闭连接
+  //     ctx.websocket.close();
+  //   }
+  // });
+  // app.ws.route('/ws', app.controller.api.chat.connect);
 };

@@ -39,6 +39,18 @@ module.exports = {
         onDelete: 'cascade',
         onUpdate: 'restrict', // 更新时操作
       },
+      orign_user_id: {
+        type: INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+        comment: '视频up主',
+        references: {
+          model: 'user',
+          key: 'id',
+        },
+        onDelete: 'cascade',
+        onUpdate: 'restrict', // 更新时操作
+      },
       created_time: DATE,
       updated_time: DATE,
     });

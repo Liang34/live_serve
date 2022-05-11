@@ -5,18 +5,25 @@ const crypto = require('crypto');
 module.exports = {
   // 成功提示
   apiSuccess(data = '', msg = 'ok', code = 200) {
-    this.body = { msg, data };
+    this.body = {
+      msg,
+      data,
+    };
     this.status = code;
   },
   // 失败提示
   apiFail(data = '', msg = 'fail', code = 400) {
-    this.body = { msg, data };
+    this.body = {
+      msg,
+      data,
+    };
     this.status = code;
   },
   // 页面找不到
   async pageFail(data = '', code = 404) {
     return await this.render('admin/common/404.html', {
-      data, code,
+      data,
+      code,
     });
   },
   // 分页
@@ -41,7 +48,9 @@ module.exports = {
     // 总页数
     const totalPage = Math.ceil(res.count / limit);
 
-    let query = { ...this.query };
+    let query = {
+      ...this.query,
+    };
     if (query.hasOwnProperty('page')) {
       delete query.page;
     }
@@ -117,7 +126,8 @@ module.exports = {
   // 消息提示
   toast(msg, type = 'danger') {
     this.cookies.set('toast', JSON.stringify({
-      msg, type,
+      msg,
+      type,
     }), {
       maxAge: 1500,
       encrypt: true,
@@ -131,7 +141,8 @@ module.exports = {
     password = hmac.digest('hex');
     const res = password === hash_password;
     if (!res) {
-      this.throw(400, '密码错误');
+      // this.throw(400, '密码错误');
+      return false;
     }
     return true;
   },
@@ -141,6 +152,8 @@ module.exports = {
   },
   // 验证token
   checkToken(token) {
+    console.log(typeof token);
+    console.log('token', token);
     return this.app.jwt.verify(token, this.app.config.jwt.secret);
   },
   randomString(length) {
@@ -148,5 +161,67 @@ module.exports = {
     let result = '';
     for (let i = length; i > 0; --i) result += chars[Math.floor(Math.random() * chars.length)];
     return result;
+  },
+  // 用户上线
+  async online(user_id) {
+    const {
+      service,
+      app,
+    } = this;
+    const pid = process.pid;
+    // 下线其他设备
+    const opid = await service.cache.get('online_' + user_id);
+    if (opid) {
+      // 通知对应进程用户下线
+      app.messenger.sendTo(opid, 'offline', user_id);
+    }
+    // 存储上线状态
+    service.cache.set('online_' + user_id, pid);
+  },
+  // 发送或者存到消息队列中
+  async sendAndSaveMessage(to_id, message, msg = 'ok') {
+    const { app, service } = this;
+    const current_user_id = this.authUser.id;
+
+    // 拿到接受用户所在子进程
+    const pid = await service.cache.get('online_' + to_id);
+
+    if (pid) {
+      // 消息推送
+      app.messenger.sendTo(pid, 'send', {
+        to_id,
+        message,
+        msg,
+      });
+      // 存到历史记录当中
+      if (msg === 'ok') {
+        service.cache.setList(`chatlog_${to_id}_${message.chat_type}_${current_user_id}`, message);
+      }
+    } else {
+      service.cache.setList('getmessage_' + to_id, {
+        message,
+        msg,
+      });
+    }
+
+    // 拿到对方的socket
+    // let socket = app.ws.user[to_id];
+    // 验证对方是否在线？不在线记录到待接收消息队列中；在线，消息推送，存储到对方的聊天记录中 chatlog_对方用户id_user_当前用户id
+    // if (app.ws.user && app.ws.user[to_id]) {
+    //     // 消息推送
+    //     app.ws.user[to_id].send(JSON.stringify({
+    //         msg,
+    //         data: message
+    //     }));
+    //     // 存到历史记录当中
+    //     if (msg === 'ok') {
+    //         service.cache.setList(`chatlog_${to_id}_${message.chat_type}_${current_user_id}`, message);
+    //     }
+    // } else {
+    //     service.cache.setList('getmessage_' + to_id, {
+    //         message,
+    //         msg
+    //     });
+    // }
   },
 };

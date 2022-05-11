@@ -39,6 +39,22 @@ module.exports = {
         allowNull: true,
         comment: '个人描述',
       },
+      gender: {
+        type: INTEGER,
+        allowNull: true,
+        comment: '性别0男1女',
+      },
+      tags: {
+        type: STRING,
+        allowNull: true,
+        comment: '用户感兴趣标签',
+      },
+      get_likes: {
+        type: INTEGER,
+        allowNull: true,
+        comment: '获得点赞数',
+        defaultValue: 0,
+      },
       created_time: DATE,
       updated_time: DATE,
     });

@@ -4,7 +4,7 @@ const Controller = require('egg').Controller;
 // 引入
 const fs = require('fs');
 const path = require('path');
-// 故名思意 异步二进制 写入流
+// 异步二进制 写入流
 const awaitWriteStream = require('await-stream-ready').write;
 // 管道读入一个虫洞。
 const sendToWormhole = require('stream-wormhole');
@@ -29,15 +29,11 @@ class CommonController extends Controller {
         return true;
       }
     }
-
     mkdirsSync(path.join(uploadBasePath, dirname));
-
     // 生成写入路径
     const target = path.join(uploadBasePath, dirname, filename);
-
     // 写入流
     const writeStream = fs.createWriteStream(target);
-
     try {
       // 异步把文件流写入
       await awaitWriteStream(stream.pipe(writeStream));
@@ -46,9 +42,7 @@ class CommonController extends Controller {
       await sendToWormhole(stream);
       this.ctx.throw(500, error);
     }
-
     const url = path.join('/public/uploads', dirname, filename).replace(/\\|\//g, '/');
-
     this.ctx.apiSuccess({ url });
   }
 }

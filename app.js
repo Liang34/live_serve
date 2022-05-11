@@ -17,49 +17,38 @@ class AppBootHook {
   async didLoad() {
     // 所有的配置已经加载完毕
     // 可以用来加载应用自定义的文件，启动自定义的服务
-
     if (!this.app.nms) {
-      this.app.nms = new NodeMediaServer(this.app.config.mediaServer);
-      this.app.nms.run();
-
+      this.app.nms = new NodeMediaServer(this.app.config.mediaServer);// 将配置传给插件
+      this.app.nms.run();// 启动直播服务
+      // 直播服务器的生命周期
       this.app.nms.on('preConnect', (id, args) => {
         console.log('[NodeEvent on preConnect]', `id=${id} args=${JSON.stringify(args)}`);
-        // let session = nms.getSession(id);
-        // session.reject();
       });
-
       this.app.nms.on('postConnect', (id, args) => {
         console.log('[NodeEvent on postConnect]', `id=${id} args=${JSON.stringify(args)}`);
       });
-
       this.app.nms.on('doneConnect', (id, args) => {
         console.log('[NodeEvent on doneConnect]', `id=${id} args=${JSON.stringify(args)}`);
       });
-
       this.app.nms.on('prePublish', (id, StreamPath, args) => {
         console.log('[NodeEvent on prePublish]', `id=${id} StreamPath=${StreamPath} args=${JSON.stringify(args)}`);
         // let session = nms.getSession(id);
         // session.reject();
       });
-
       this.app.nms.on('postPublish', (id, StreamPath, args) => {
         console.log('[NodeEvent on postPublish]', `id=${id} StreamPath=${StreamPath} args=${JSON.stringify(args)}`);
       });
-
       this.app.nms.on('donePublish', (id, StreamPath, args) => {
         console.log('[NodeEvent on donePublish]', `id=${id} StreamPath=${StreamPath} args=${JSON.stringify(args)}`);
       });
-
       this.app.nms.on('prePlay', (id, StreamPath, args) => {
         console.log('[NodeEvent on prePlay]', `id=${id} StreamPath=${StreamPath} args=${JSON.stringify(args)}`);
         // let session = nms.getSession(id);
         // session.reject();
       });
-
       this.app.nms.on('postPlay', (id, StreamPath, args) => {
         console.log('[NodeEvent on postPlay]', `id=${id} StreamPath=${StreamPath} args=${JSON.stringify(args)}`);
       });
-
       this.app.nms.on('donePlay', (id, StreamPath, args) => {
         console.log('[NodeEvent on donePlay]', `id=${id} StreamPath=${StreamPath} args=${JSON.stringify(args)}`);
       });
@@ -78,6 +67,25 @@ class AppBootHook {
     // 应用已经启动完毕
     //   const ctx = await this.app.createAnonymousContext();
     //   await ctx.service.Biz.request();
+    const app = this.app;
+    app.messenger.on('offline', user_id => {
+      if (app.ws.user[user_id]) {
+        app.ws.user[user_id].send(JSON.stringify({
+          msg: 'fail',
+          data: '你的账号在其他设备登录',
+        }));
+        app.ws.user[user_id].close();
+      }
+    });
+    app.messenger.on('send', e => {
+      const { to_id, message, msg } = e;
+      if (app.ws.user && app.ws.user[to_id]) {
+        app.ws.user[to_id].send(JSON.stringify({
+          msg,
+          data: message,
+        }));
+      }
+    });
   }
 
   async serverDidReady() {

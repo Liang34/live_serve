@@ -8,29 +8,16 @@ class LiveController extends Controller {
   async save() {
     const { ctx, app } = this;
     const user_id = ctx.authUser.id;
-    // 参数验证
-    ctx.validate({
-      title: {
-        required: true,
-        type: 'string',
-        desc: '直播间标题',
-      },
-      cover: {
-        required: false,
-        type: 'string',
-        desc: '直播间封面',
-      },
-    });
-    const { title, cover } = ctx.request.body;
-    // 生成唯一id
+    const { title, cover, tag } = ctx.request.body;
     const key = ctx.randomString(20);
     const res = await app.model.Live.create({
       title,
       cover,
       key,
       user_id,
+      live_tag: tag,
     });
-    // 生成签名
+    // 生成签名,用于直播推流链接地址推流
     const sign = this.sign(key);
     ctx.apiSuccess({
       data: res,
@@ -97,10 +84,14 @@ class LiveController extends Controller {
       },
     });
     const page = ctx.params.page;
-    const limit = 10;
+    const limit = 8;
     const offset = (page - 1) * limit;
     const rows = await app.model.Live.findAll({
       limit, offset,
+      where: {
+        status: 1,
+      },
+      include: app.model.User,
     });
     ctx.apiSuccess(rows);
   }
@@ -136,6 +127,18 @@ class LiveController extends Controller {
       data: live,
       sign,
     });
+  }
+  // 查询某人直播
+  async userLive() {
+    const { ctx, app } = this;
+    const { id } = ctx.request.body;
+    const lives = await app.model.Live.findAll({
+      where: {
+        user_id: id,
+      },
+      include: app.model.User,
+    });
+    ctx.apiSuccess(lives);
   }
 }
 module.exports = LiveController;
